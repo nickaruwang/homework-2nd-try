@@ -1,5 +1,5 @@
 {
-  "image": "owenardenucsc/cse210a:8.19",
+  "image": "ghcr.io/ucsc-cse-210a/ucsc-cse210a:8.19",
   "customizations": {
     "vscode": {
       "extensions": ["maximedenes.vscoq"],
