@@ -4,7 +4,7 @@
     "vscode": {
       "extensions": ["maximedenes.vscoq"],
       "settings": {
-        "coqtop.binPath" : "/home/coq/.opam/default/bin",
+        "coqtop.binPath" : "/home/coq/.opam/4.14.2+flambda/bin",
         "files.exclude": {
           "**/*.aux": true,
           "**/*.glob": true,
