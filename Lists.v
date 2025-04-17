@@ -1013,7 +1013,7 @@ Example test_eqblist3 :
   eqblist [1;2;3] [1;2;4] = false.
   reflexivity. Qed.
 
-Theorem eqblist_refl : forall l:natlist,
+  Theorem eqblist_refl : forall l : natlist,
   true = eqblist l l.
 Proof.
   (* FILL IN HERE *) Admitted.
@@ -1029,7 +1029,10 @@ Proof.
 Theorem count_member_nonzero : forall (s : bag),
   1 <=? (count 1 (1 :: s)) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros s.
+  simpl.
+  reflexivity.
+Qed.
 (** [] *)
 
 (** The following lemma about [leb] might help you in the next

@@ -937,18 +937,7 @@ Proof. reflexivity. Qed.
 Lemma double_incr_bin : forall b,
     double_bin (incr b) = incr (incr (double_bin b)).
     Proof.
-    intros b.
-    induction b as [| b' IH | b' IH].
-    - (* b = Z *)
-      simpl. reflexivity.
-    - (* b = B0 b' *)
-      simpl. reflexivity.
-    - (* b = B1 b' *)
-      simpl.
-      (* Goal: double_bin (B0 (incr b')) = incr (incr (B0 (b'))) *)
-      apply f_equal.
-      (* Now goal is: double_bin (incr b') = incr (incr (double_bin b')) *)
-    reflexivity.
+    induction b; simpl; try rewrite IH; reflexivity.
     Qed.
 
 (** [] *)
@@ -1013,9 +1002,56 @@ Abort.
     progress. We have one lemma for the [B0] case (which also makes
     use of [double_incr_bin]) and another for the [B1] case. *)
 
-Theorem bin_nat_bin : forall b, nat_to_bin (bin_to_nat b) = normalize b.
+ Lemma nat_to_bin_double : forall n,
+ nat_to_bin (n + n) = double_bin (nat_to_bin n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+ induction n as [| n IH]; simpl.
+ - reflexivity.
+  - (* expose double_bin (incr _) on RHS *)
+   rewrite double_incr_bin.
+    (* turn n + S n into S (n + n) *)
+   rewrite <- plus_n_Sm.
+   (* simplify the outer nat_to_bin on the LHS *)
+    simpl.
+   (* now apply IH under the two incr’s *)
+     rewrite IH.
+   reflexivity.
+    Qed.
+
+
+(** Finally, the main theorem. *)
+Theorem bin_nat_bin : forall b,
+  nat_to_bin (bin_to_nat b) = normalize b.
+Proof.
+  induction b as [|b IH|b IH]; simpl.
+  - (* Z *)
+    reflexivity.
+  -
+  Admitted.
+    (* 
+  - (* B0 b *)
+    (* bin_to_nat (B0 b) = 2 * bin_to_nat b *)
+    rewrite nat_to_bin_double.
+    rewrite IH.
+    (* nat_to_bin_double gives double_bin (nat_to_bin (bin_to_nat b)) = double_bin (normalize b) *)
+    unfold double_bin; simpl.
+    (* now just case-analyze [normalize b] to see that it matches [normalize (B0 b)] *)
+    remember (normalize b) as nb.
+    destruct nb; simpl; [reflexivity | reflexivity].
+  - (* B1 b *)
+    (* bin_to_nat (B1 b) = S (2 * bin_to_nat b) *)
+    rewrite <- nat_to_bin_double.
+    rewrite IH.
+    (* so we have incr (double_bin (normalize b)) on the “binarized” side *)
+    unfold double_bin; simpl.
+    (* and we need to show
+         incr (double_bin (normalize b))
+       = normalize (B1 b)
+     but [normalize (B1 b)] is [B1 (normalize b)], and one checks by cases that
+     [incr (double_bin nb) = B1 nb], which matches. *)
+    remember (normalize b) as nb.
+    destruct nb; simpl; reflexivity.
+Admitted. *)
 
 (** [] *)
 
