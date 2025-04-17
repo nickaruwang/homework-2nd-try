@@ -242,23 +242,52 @@ Proof.
 Theorem mul_0_r : forall n:nat,
   n * 0 = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHn'. reflexivity. Qed.
 
 Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n as [| n' IHn'].
+  - reflexivity.
+  -
+    simpl.
+    intros m.
+    rewrite -> IHn'.
+    reflexivity.
+Qed.
 
 Theorem add_comm : forall n m : nat,
   n + m = m + n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m.
+  induction n as [| n' IHn'].
+  - (* Base case: 0 + m = m and by [add_0_r], m + 0 = m *)
+    simpl.
+    rewrite add_0_r.
+    reflexivity.
+  - (* Inductive step: (S n') + m = S (n' + m) and using induction hypothesis and [plus_n_Sm] *)
+    simpl.
+    rewrite IHn'.
+    apply plus_n_Sm.
+  Qed.
 
 Theorem add_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m p.
+  induction n as [| n' IHn'].
+  - (* Base case: 0 + (m + p) = m + p, and (0 + m) + p = m + p *)
+    reflexivity.
+  - (* Inductive step *)
+    simpl.
+    (* Here, (S n') + (m + p) simplifies to S (n' + (m + p)).
+       Similarly, ((S n') + m) + p simplifies to S ((n' + m) + p). *)
+    rewrite IHn'.
+    reflexivity.
+Qed.
+  (** [] *)
 
 (** **** Exercise: 2 stars, standard (double_plus)
 
