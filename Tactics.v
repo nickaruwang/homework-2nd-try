@@ -677,7 +677,46 @@
         hypothesis explicitly and being as explicit as possible about
         quantifiers, everywhere. *)
     
-    (* FILL IN HERE *)
+    (* (* 
+We proceed by induction on n.
+Base case: Let n = 0.
+We must show that for all m, if 0 =? m = true, then 0 = m.
+
+Let m be an arbitrary natural number.
+We consider two cases for m:
+	1.	Case m = 0:
+Then 0 =? m = 0 =? 0 = true, so the hypothesis holds.
+Since both n and m are 0, we conclude 0 = 0, as required.
+	2.	Case m = S m' for some m':
+Then 0 =? S m' = false, so the assumption 0 =? m = true does not hold.
+This contradicts the hypothesis, so this case is impossible.
+
+Therefore, the base case holds.
+
+⸻
+
+Inductive step: Assume n = S n' for some natural number n'.
+Induction hypothesis (IH): For all m, if n' =? m = true, then n' = m.
+
+We must show: for all m, if S n' =? m = true, then S n' = m.
+
+Let m be an arbitrary natural number.
+We consider two cases for m:
+	1.	Case m = 0:
+Then S n' =? 0 = false, so the hypothesis S n' =? m = true is false.
+This contradicts the assumption, so this case is impossible.
+	2.	Case m = S m' for some m':
+Then S n' =? S m' = n' =? m'.
+So the assumption S n' =? m = true implies that n' =? m' = true.
+By the induction hypothesis, we conclude n' = m'.
+Therefore, S n' = S m' = m, as required.
+
+⸻
+
+Since both the base case and the inductive step have been proved, by induction,
+we conclude that for all natural numbers n and m,
+if n =? m = true, then n = m. □
+ *) *)
     
     (* Do not modify the following line: *)
     Definition manual_grade_for_informal_proof : option (nat*string) := None.
@@ -1010,8 +1049,19 @@
     Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
       split l = (l1, l2) ->
       combine l1 l2 = l.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros X Y l.
+      induction l as [| [x y] t IH].
+      - (* Base case *)
+        intros l1 l2 H. simpl in H. inversion H. reflexivity.
+      - (* Inductive case *)
+        intros l1 l2 H. simpl in H.
+        destruct (split t) as [lx ly] eqn:Hs.
+        inversion H. subst.
+        simpl.
+        rewrite (IH lx ly eq_refl).
+        reflexivity.
+    Qed.
     (** [] *)
     
     (** The [eqn:] part of the [destruct] tactic is optional; although
@@ -1166,8 +1216,9 @@
     (** **** Exercise: 3 stars, standard (eqb_sym) *)
     Theorem eqb_sym : forall (n m : nat),
       (n =? m) = (m =? n).
-    Proof.
+      Proof.
       (* FILL IN HERE *) Admitted.
+
     (** [] *)
     
     (** **** Exercise: 3 stars, advanced, optional (eqb_sym_informal)
