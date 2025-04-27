@@ -246,9 +246,12 @@ Proof.
 
 Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
-Proof.
+  Proof.
   intros P Q R [HP [HQ HR]].
-  (* FILL IN HERE *) Admitted.
+  split.
+  - split; assumption.
+  - assumption.
+Qed.
 (** [] *)
 
 (** Finally, the infix notation [/\] is actually just syntactic sugar for
@@ -319,15 +322,24 @@ Qed.
 (** **** Exercise: 2 stars, standard (mult_is_O) *)
 Lemma mult_is_O :
   forall n m, n * m = 0 -> n = 0 \/ m = 0.
-Proof.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  intros n m H.
+  destruct n as [|n'].
+  - left. reflexivity.
+  - destruct m as [|m'].
+    + right. reflexivity.
+    + simpl in H. discriminate H.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (or_commut) *)
 Theorem or_commut : forall P Q : Prop,
   P \/ Q  -> Q \/ P.
-Proof.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  intros P Q [HP | HQ].
+  - right. apply HP.
+  - left.  apply HQ.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
