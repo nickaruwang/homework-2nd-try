@@ -341,8 +341,10 @@
       forall (X : Type) (x y z : X) (l j : list X),
         x :: y :: l = [] ->
         x = z.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+        Proof.
+        intros X x y z l j H.
+        discriminate H.
+      Qed.
     (** [] *)
     
     (** For a more useful example, we can use [discriminate] to make a
@@ -653,8 +655,20 @@
     (** **** Exercise: 2 stars, standard (eqb_true) *)
     Theorem eqb_true : forall n m,
       n =? m = true -> n = m.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros n.
+      induction n as [| n' IHn'].
+      - (* n = 0 *)
+        intros m H.
+        destruct m as [| m'].
+        + (* m = 0 *) reflexivity.
+        + (* m = S m' *) simpl in H. discriminate H.
+      - (* n = S n' *)
+        intros m H.
+        destruct m as [| m'].
+        + (* m = 0 *) simpl in H. discriminate H.
+        + (* m = S m' *) simpl in H. apply IHn' in H. rewrite H. reflexivity.
+    Qed.
     (** [] *)
     
     (** **** Exercise: 2 stars, advanced (eqb_true_informal)
@@ -676,8 +690,23 @@
     Theorem plus_n_n_injective : forall n m,
       n + n = m + m ->
       n = m.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros n. induction n as [| n' IH].
+      - (* Base case: n = 0 *)
+        simpl. intros m H.
+        destruct m as [| m'].
+        + reflexivity.
+        + simpl in H. discriminate H.
+      - (* Inductive step: n = S n' *)
+        intros m H.
+        destruct m as [| m'].
+        + simpl in H. discriminate H.
+        + simpl in H.
+          repeat rewrite <- plus_n_Sm in H.
+          injection H as H'.
+          apply IH in H'.
+          rewrite H'. reflexivity.
+    Qed.
     (** [] *)
     
     (** The strategy of doing fewer [intros] before an [induction] to
@@ -783,8 +812,18 @@
     Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
       length l = n ->
       nth_error l n = None.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros n X l.
+      generalize dependent n.
+      induction l as [| x l' IH].
+      - (* l = [] *) intros n H. simpl in H. subst. reflexivity.
+      - (* l = x :: l' *) intros n H. simpl in H.
+        destruct n as [| n'].
+        + (* n = 0 *) discriminate H.
+        + (* n = S n' *) injection H as Hlen.
+          apply IH in Hlen.
+          simpl. apply Hlen.
+    Qed.
     (** [] *)
     
     (* ################################################################# *)
@@ -1139,7 +1178,46 @@
        Theorem: For any [nat]s [n] [m], [(n =? m) = (m =? n)].
     
        Proof: *)
-       (* FILL IN HERE
+       (* (* 
+We proceed by induction on n.
+Base case: Let n = 0.
+We must show that for all m, if 0 =? m = true, then 0 = m.
+
+Let m be an arbitrary natural number.
+We consider two cases for m:
+	1.	Case m = 0:
+Then 0 =? m = 0 =? 0 = true, so the hypothesis holds.
+Since both n and m are 0, we conclude 0 = 0, as required.
+	2.	Case m = S m' for some m':
+Then 0 =? S m' = false, so the assumption 0 =? m = true does not hold.
+This contradicts the hypothesis, so this case is impossible.
+
+Therefore, the base case holds.
+
+⸻
+
+Inductive step: Assume n = S n' for some natural number n'.
+Induction hypothesis (IH): For all m, if n' =? m = true, then n' = m.
+
+We must show: for all m, if S n' =? m = true, then S n' = m.
+
+Let m be an arbitrary natural number.
+We consider two cases for m:
+	1.	Case m = 0:
+Then S n' =? 0 = false, so the hypothesis S n' =? m = true is false.
+This contradicts the assumption, so this case is impossible.
+	2.	Case m = S m' for some m':
+Then S n' =? S m' = n' =? m'.
+So the assumption S n' =? m = true implies that n' =? m' = true.
+By the induction hypothesis, we conclude n' = m'.
+Therefore, S n' = S m' = m, as required.
+
+⸻
+
+Since both the base case and the inductive step have been proved, by induction,
+we conclude that for all natural numbers n and m,
+if n =? m = true, then n = m. □
+ *)
     
         [] *)
     
