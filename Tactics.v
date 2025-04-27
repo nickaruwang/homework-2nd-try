@@ -111,8 +111,12 @@
     Theorem rev_exercise1 : forall (l l' : list nat),
       l = rev l' ->
       l' = rev l.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros l l' H.
+      symmetry.              (* Goal becomes: rev l = l' *)
+      rewrite H.             (* Now goal is: rev (rev l') = l' *)
+      apply rev_involutive.  (* Done *)
+    Qed.
     (** [] *)
     
     (** **** Exercise: 1 star, standard, optional (apply_rewrite)
@@ -281,8 +285,14 @@
       x :: y :: l = z :: j ->
       j = z :: l ->
       x = y.
-    Proof.
-      (* FILL IN HERE *) Admitted.
+      Proof.
+      intros X x y z l j H1 H2.
+      rewrite H2 in H1.
+      injection H1 as Hxz Hyl.
+      rewrite Hxz.
+      symmetry.
+      apply Hyl.
+    Qed.
     (** [] *)
     
     (** So much for injectivity of constructors.  What about disjointness? *)
