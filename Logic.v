@@ -462,7 +462,15 @@ Proof.
 
    _Theorem_: [P] implies [~~P], for any proposition [P]. *)
 
-(* FILL IN HERE *)
+(* Let P be an arbitrary proposition, and suppose we know P holds.
+We must show ¬¬P, which by definition means (P → False) → False.
+	1.	Assume, for the sake of argument, that P → False. Call this assumption H.
+	2.	But since we already have P, applying H to P yields a contradiction (False).
+	3.	Thus from H we have derived False, so (P → False) → False holds.
+	4.	Therefore ¬¬P is true whenever P is true.
+
+Since P was arbitrary, we have shown that P implies ¬¬P for any proposition P
+ *)
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_double_neg_informal : option (nat*string) := None.
@@ -1563,8 +1571,30 @@ Theorem eqb_list_true_iff :
   forall A (eqb : A -> A -> bool),
     (forall a1 a2, eqb a1 a2 = true <-> a1 = a2) ->
     forall l1 l2, eqb_list eqb l1 l2 = true <-> l1 = l2.
-Proof.
-(* FILL IN HERE *) Admitted.
+    Proof.
+    intros A eqb Heq. 
+    induction l1 as [| x xs IH]; intros l2; destruct l2 as [| y ys]; simpl.
+    - (* [] , [] *)
+      split; intros _; reflexivity.
+    - (* [] , y::ys *)
+      split; intros H; discriminate H.
+    - (* x::xs , [] *)
+      split; intros H; discriminate H.
+    - (* x::xs , y::ys *)
+      split.
+      + (* -> *)
+        intros H.
+        apply andb_true_iff in H as [Hxy Hrest].
+        apply Heq in Hxy as ->.
+        apply IH in Hrest as ->.
+        reflexivity.
+      + (* <- *)
+        intros H.
+        injection H as Hxy Hrest.
+        apply Heq in Hxy as ->.
+        apply IH in Hrest as ->.
+        reflexivity.
+  Qed.
 
 (** [] *)
 
