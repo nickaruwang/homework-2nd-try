@@ -566,7 +566,10 @@ Qed.
 Theorem ev_double : forall n,
   ev (double n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n as [| n IH].
+  - simpl. apply ev_0.
+  - simpl. apply ev_SS. apply IH.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -606,12 +609,19 @@ Qed.
 (** **** Exercise: 1 star, standard (Perm3) *)
 Lemma Perm3_ex1 : Perm3 [1;2;3] [2;3;1].
 Proof.
-  (* FILL IN HERE *) Admitted.
+  apply perm3_trans with (l2:=[2;1;3]).
+  - apply perm3_swap12.
+  - apply perm3_swap23.
+Qed.
 
 Lemma Perm3_refl : forall (X : Type) (a b c : X),
   Perm3 [a;b;c] [a;b;c].
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X a b c.
+  apply perm3_trans with (l2:=[b;a;c]).
+  - apply perm3_swap12.
+  - apply perm3_swap12.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -679,7 +689,11 @@ Theorem le_inversion : forall (n m : nat),
   le n m ->
   (n = m) \/ (exists m', m = S m' /\ le n m').
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H.
+  inversion H; subst.
+  - left. reflexivity.
+  - right. exists m0. split; [reflexivity | assumption].
+Qed.
 (** [] *)
 
 (** We can use the inversion lemma that we proved above to help
@@ -740,7 +754,11 @@ Proof. intros H. inversion H. Qed.
 Theorem SSSSev__even : forall n,
   ev (S (S (S (S n)))) -> ev n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n H.
+  inversion H as [| n0 H1]; clear H.
+  inversion H1 as [| n1 H2]; clear H1.
+  apply H2.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (ev5_nonsense)
@@ -750,7 +768,11 @@ Proof.
 Theorem ev5_nonsense :
   ev 5 -> 2 + 2 = 9.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros H.
+  inversion H as [| n1 H1]; clear H.
+  inversion H1 as [| n2 H2]; clear H1.
+  inversion H2.
+Qed.
 (** [] *)
 
 (** The [inversion] tactic does quite a bit of work. For
@@ -911,7 +933,11 @@ Qed.
 (** **** Exercise: 2 stars, standard (ev_sum) *)
 Theorem ev_sum : forall n m, ev n -> ev m -> ev (n + m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m Hn Hm.
+  induction Hn as [| n' Hn' IH].
+  - simpl. apply Hm.
+  - simpl. apply ev_SS. apply IH.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced, especially useful (ev_ev__ev) *)
@@ -920,7 +946,12 @@ Theorem ev_ev__ev : forall n m,
   (* Hint: There are two pieces of evidence you could attempt to induct upon
       here. If one doesn't work, try the other. *)
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m Hnm Hn.
+  induction Hn as [| n' Hn' IH].
+  - simpl in Hnm. apply Hnm.
+  - simpl in Hnm. inversion Hnm as [| n0 Hnm']; clear Hnm.
+    apply IH. apply Hnm'.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (ev_plus_plus)
