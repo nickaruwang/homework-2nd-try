@@ -2,6 +2,7 @@
 
 Set Warnings "-notation-overridden,-parsing,-deprecated-hint-without-locality".
 From LF Require Export Logic.
+Require Import Lia.
 
 (* ################################################################# *)
 (** * Inductively Defined Propositions *)
@@ -1018,8 +1019,29 @@ Qed.
 (** **** Exercise: 2 stars, standard (Perm3_In) *)
 Lemma Perm3_In : forall (X : Type) (x : X) (l1 l2 : list X),
     Perm3 l1 l2 -> In x l1 -> In x l2.
-Proof.
-  (* FILL IN HERE *) Admitted.
+    Proof.
+    intros X x l1 l2 Hperm Hin.
+    induction Hperm as [a b c | a b c | l1' l2' l3' H12 IH12 H23 IH23]; simpl.
+    - (* perm3_swap12 *)
+      destruct Hin as [Hxa | Hin1].
+      + (* x = a *) subst; simpl; right; left; reflexivity.
+      + destruct Hin1 as [Hxb | Hin2].
+        * (* x = b *) subst; simpl; left; reflexivity.
+        * destruct Hin2 as [Hxc | Contra].
+          { (* x = c *) subst; simpl; right; right; left; reflexivity. }
+          { inversion Contra. }
+    - (* perm3_swap23 *)
+      destruct Hin as [Hxa | Hin1].
+      + (* x = a *) subst; simpl; left; reflexivity.
+      + destruct Hin1 as [Hxb | Hin2].
+        * (* x = b *) subst; simpl; right; right; left; reflexivity.
+        * destruct Hin2 as [Hxc | Contra].
+          { (* x = c *) subst; simpl; right; left; reflexivity. }
+          { inversion Contra. }
+    - (* perm3_trans *)
+      apply IH23, IH12, Hin.
+  Qed.
+  
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (Perm3_NotIn) *)
@@ -1132,27 +1154,51 @@ End Playground.
 (** **** Exercise: 3 stars, standard, especially useful (le_facts) *)
 Lemma le_trans : forall m n o, m <= n -> n <= o -> m <= o.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros m n o Hmn Hno. induction Hno as [| o' Hno' IH].
+  - apply Hmn.
+  - apply le_S. apply IH.
+Qed.
 
 Theorem O_le_n : forall n,
   0 <= n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n; induction n as [| n' IH].
+  - apply le_n.
+  - apply le_S. apply IH.
+Qed.
 
 Theorem n_le_m__Sn_le_Sm : forall n m,
   n <= m -> S n <= S m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction 1.
+  - apply le_n.
+  - apply le_S. assumption.
+Qed.
 
 Theorem Sn_le_Sm__n_le_m : forall n m,
   S n <= S m -> n <= m.
-Proof.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  intros n m H.
+  inversion H.
+  - apply le_n.
+  - generalize dependent H1.
+    apply le_trans.
+    apply le_S. apply le_n.
+Qed.
+
 
 Theorem le_plus_l : forall a b,
   a <= a + b.
-Proof.
-  (* FILL IN HERE *) Admitted.
+  Proof.
+  intros a b.
+  induction a.
+  - apply O_le_n.
+  - apply n_le_m__Sn_le_Sm in IHa.
+    apply IHa.
+Qed.
+
+
+ 
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, especially useful (plus_le_facts1) *)
@@ -1160,14 +1206,11 @@ Proof.
 Theorem plus_le : forall n1 n2 m,
   n1 + n2 <= m ->
   n1 <= m /\ n2 <= m.
-Proof.
- (* FILL IN HERE *) Admitted.
+Proof. intros. lia. Qed.
 
 Theorem plus_le_cases : forall n m p q,
   n + m <= p + q -> n <= p \/ m <= q.
-  (** Hint: May be easiest to prove by induction on [n]. *)
-Proof.
-(* FILL IN HERE *) Admitted.
+Proof. intros. lia. Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, especially useful (plus_le_facts2) *)
@@ -1176,19 +1219,23 @@ Theorem plus_le_compat_l : forall n m p,
   n <= m ->
   p + n <= p + m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. lia.
+Qed.
 
 Theorem plus_le_compat_r : forall n m p,
   n <= m ->
   n + p <= m + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. lia.
+Qed.
 
 Theorem le_plus_trans : forall n m p,
   n <= m ->
   n <= m + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. lia.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (lt_facts) *)
@@ -1957,26 +2004,65 @@ Qed.
     a (constructive!) way to generate strings matching [re] that are
     as long as we like. *)
 
-Lemma weak_pumping : forall T (re : reg_exp T) s,
-  s =~ re ->
-  pumping_constant re <= length s ->
-  exists s1 s2 s3,
-    s = s1 ++ s2 ++ s3 /\
-    s2 <> [] /\
-    forall m, s1 ++ napp m s2 ++ s3 =~ re.
-
-(** Complete the proof below. Several of the lemmas about [le] that
-    were in an optional exercise earlier in this chapter may also be
-    useful. *)
-Proof.
-  intros T re s Hmatch.
-  induction Hmatch
-    as [ | x | s1 re1 s2 re2 Hmatch1 IH1 Hmatch2 IH2
-       | s1 re1 re2 Hmatch IH | s2 re1 re2 Hmatch IH
-       | re | s1 s2 re Hmatch1 IH1 Hmatch2 IH2 ].
-  - (* MEmpty *)
-    simpl. intros contra. inversion contra.
-  (* FILL IN HERE *) Admitted.
+    Require Import Coq.Arith.Arith.
+    
+    Lemma weak_pumping : forall T (re : reg_exp T) s,
+      s =~ re ->
+      pumping_constant re <= length s ->
+      exists s1 s2 s3,
+        s = s1 ++ s2 ++ s3 /\
+        s2 <> [] /\
+        forall m, s1 ++ napp m s2 ++ s3 =~ re.
+     Proof.
+      (* FILL IN HERE *) Admitted.
+(*
+      intros T re s Hmatch Hlen.
+      induction Hmatch as
+        [                      (* MEmpty: [] =~ EmptyStr *)
+        | x                    (* MChar *)
+        | s1 re1 s2 re2 H1 IH1 H2 IH2   (* MApp *)
+        | s1 re1 re2 H IH             (* MUnionL *)
+        | s2 re1 re2 H IH             (* MUnionR *)
+        | re                     (* MStar0 *)
+        | s1 s2 re H1 IH1 H2 IH2     (* MStarApp *) ];
+        simpl in *; try lia.
+      - (* MApp: length s = length s1 + length s2 *)
+        apply Nat.add_le_cases in Hlen as [Hlen1 | Hlen2].
+        + move: (IH1 Hlen1) => [u1 [u2 [u3 [-> [Ne1 Hf1]]]]] .
+          exists u1, u2, (u3 ++ s2); split.
+          * by rewrite <- app_assoc.
+          * split; [exact Ne1|].
+            intros m; rewrite <- app_assoc.
+            eapply MApp; eauto.
+        + move: (IH2 Hlen2) => [u1 [u2 [u3 [-> [Ne2 Hf2]]]]] .
+          exists (s1 ++ u1), u2, u3; split.
+          * by rewrite app_assoc.
+          * split; [exact Ne2|].
+            intros m; rewrite app_assoc.
+            eapply MApp; eauto.
+      - (* MUnionL: pumping_constant = pc1 + pc2 *)
+        rewrite Nat.add_comm in Hlen.
+        apply Nat.add_le_cases in Hlen as [Hlen1|?]; [|lia].
+        move: (IH Hlen1) => [u1 [u2 [u3 [-> [Ne Hf]]]]].
+        exists u1,u2,u3; split; [exact eq_refl|].
+        split; [exact Ne|].
+        intros m; exact (MUnionL _ _ u2 u3 Hf).
+      - (* MUnionR *)
+        apply Nat.add_le_cases in Hlen as [?|Hlen2]; [lia|].
+        move: (IH Hlen2) => [u1 [u2 [u3 [-> [Ne Hf]]]]].
+        exists u1,u2,u3; split; [exact eq_refl|].
+        split; [exact Ne|].
+        intros m; exact (MUnionR _ _ u2 u3 Hf).
+      - (* MStar0: [] =~ Star re *)
+        lia.
+      - (* MStarApp *)
+        exists [], (s1 ++ s2), []; split.
+        + by rewrite !app_nil_r.
+        + split.
+          * (* non-emptiness of s1 ++ s2 *) 
+            destruct (s1 ++ s2) eqn:E; [simpl in Hlen; lia| discriminate].
+          * intros m; induction m; simpl; auto using MStar0.
+    Qed. *)
 (** [] *)
 
 (** **** Exercise: 5 stars, advanced, optional (pumping)
